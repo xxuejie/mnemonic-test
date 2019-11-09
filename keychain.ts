@@ -279,7 +279,7 @@ export enum AddressType {
 
 import {mnemonicToSeedSync} from "./word-list";
 
-export function parseMnemonic(mnemonic) {
+export function parseMnemonic(mnemonic, showPrivateKey = false) {
   const seed = mnemonicToSeedSync(mnemonic);
   const masterKeychain = Keychain.fromSeed(seed)
   const extendedKey = new ExtendedPrivateKey(
@@ -292,6 +292,13 @@ export function parseMnemonic(mnemonic) {
     accountKeychain.publicKey.toString('hex'),
     accountKeychain.chainCode.toString('hex')
   );
+
+  if (showPrivateKey) {
+    const extendedKey = accountKeychain
+      .deriveChild(AddressType.Receiving, false)
+      .deriveChild(0, false);
+    console.log("Private key: ", "0x" + extendedKey.privateKey.toString("hex"));
+  }
 
   const address = accountExtendedPublicKey.address(
     AddressType.Receiving,
